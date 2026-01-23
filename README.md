@@ -1,71 +1,116 @@
-# PromptPaste
+# PromptPaste: Your Lazy Agent’s Best Friend 🚀
+*(Because copying/pasting the same commands 20 times is for peasants.)*
 
-PromptPaste keeps the prompts, checklists, and shell snippets you keep pasting anyway in one tidy place so you can dump them into any agent interaction with a single command.
+---
 
-## What it solves
-- avoids hunting down `do_tests.md`, `AGENTS.md`, or that `!py` command you always forget
-- keeps every helpful instruction in `~/.prompt_paste`, keyed by filename
-- makes copying the same instructions into multiple projects accidentally fast
-- gives you a tiny CLI so you can save, recall, and manage clips without editing a million files
+## **Do You Relate?** 🤯
+- **You’ve copied the same "make this" prompt 100 times** and now your muscle memory is broken. 🧠💥
+- **You keep forgetting the exact command** for running tests, and your agent *still* misses something (thanks, autocorrect). 😤
+- **You’re spawning 10+ identical subagents** in ClaudeCode/OpenCode, just to tweak a *single word*. 🤖🔄
+- **You hunt for `do_tests.md`, `AGENTS.md`, or that `!py` command** you *swear* you saved. 🗃️🔍
+- **You have a "single place to copy from"** but still can’t remember the filename (or bash command) when it matters. 📂🤦
 
-## Features
-- `pp add path/to/file` is an alias for `save` that keeps the same behavior
-- `pp save path/to/file` copies a file (the full filename and extension stay intact) into the storage dir (`~/.prompt_paste` by default)
-- `pp <name>` prints the stored snippet so you can pipe it into another agent (missing entries exit quietly)
-- `pp list` lists every stored entry (names include the original extension)
-- `pp rm <name>` deletes a snippet (you can still keep copies in your project)
-- `pp store` opens the storage directory in your file manager/editor
-- entry IDs use the filename without its extension, so `pp add 123.md` saves to `123.md` and you retrieve via `pp 123`
-- collision guard: if you save a name that already exists the CLI prompts you to rename, auto‑suffix, or cancel
-- storage path is overrideable with `PROMPT_PASTE_STORAGE` for portability or testing
+**Prompting should be effortless.** You *know* what to send—you just need a shortcut. ✨
 
-## Installation
-1. Clone this repo if you haven't already:
+---
 
-   ```bash
-   git clone <repo> && cd <repo>
-   ```
+## **The Solution: A Microscopic, Opinionated Clipboard for Your CLI**
+This tool does **one thing, and does it well**:
+Store your prompts, checklists, and shell snippets in **one tidy place** so you can dump them into any agent interaction with a single command. 👀
 
-2. Install via `pip` or `uv` from the Git link:
+### **How It Works (TL;DR)**
+```bash
+pp save reminders/do_tests.md  # Save a file to ~/.prompt_paste/ (✨ *magic* ✨)
+pp do_tests                    # Agent: "Here’s your test script. Don’t mess it up." 🤖
+pp store                       # Open your prompt library in an editor (because you *will* edit it). ✏️
+```
 
-   ```bash
-   pip install git+https://github.com/<org>/PromptPaste.git
-   uv tool install git+https://github.com/<org>/PromptPaste.git
-   ```
+### **Why This Fixes Your Problems** 🎯
+✅ **No more hunting**: Never waste time searching for `do_tests.md` or `AGENTS.md` again.
+✅ **Single place for everything**: All your helpful instructions live in `~/.prompt_paste`, keyed by filename. 📁
+✅ **Accidentally fast**: Copy the same instructions across projects **without thinking**. 🔁
+✅ **Tiny CLI**: Save, recall, and manage clips **without editing a million files**. ⚡
 
-3. After installing from git you can always reinstall or update in place by rerunning whichever install command.
+---
 
-4. Or use the bundled helper scripts after setting execute rights:
+## **Features** 🌟
+| Command               | What It Does                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| `pp save <path>`      | Copies a file to `~/.prompt_paste/` (keeps original filename/extension). 📝 |
+| `pp add <path>`       | Alias for `save` (same behavior, different name). 🔄                     |
+| `pp <name>`           | Prints the stored snippet (so you can paste it into your agent). 🤖          |
+| `pp list`             | Lists **all** stored entries (with extensions). 📋                     |
+| `pp rm <name>`        | Deletes a snippet (but you can keep copies elsewhere). 🗑️                |
+| `pp store`            | Opens the storage directory in your editor/file manager. ✏️             |
 
-   ```bash
-   chmod +x scripts/install_pp.sh
-   ./scripts/install_pp.sh            # copies pp to ~/.local/bin/pp (prefix with dir to customize)
-   powershell -ExecutionPolicy Bypass -File scripts/install_pp.ps1  # installs to %USERPROFILE%\.local\bin
-   ```
+### **Bonus Features**
+- **Collision guard**: If a name already exists, it prompts you to rename, auto-append `_2`, or cancel. 🤔
+- **Custom storage path**: Override with `PROMPT_PASTE_STORAGE=/path/to/dir pp ...` for testing or portability. 🔄
+- **Silent failures**: Missing entries? **No errors**—just nothing happens. (Because you already have enough noise.) 🤫
 
-   Running those scripts multiple times simply overwrites the previous copy so you can update pp without extra cleanup.
+---
 
-## Usage
-- `pp save reminders/do_tests.md` copies `do_tests.md` to `~/.prompt_paste`.
-- `pp add reminders/do_tests.md` does the same and demonstrates the alias.
-- `pp do_tests` (or `pp do_tests.md`) prints the stored instructions so you can paste them straight into your next agent run.
-- `pp list` shows everything you have saved; missing entries fail quietly instead of emitting errors.
-- `pp store` opens the storage directory so you can edit multiple entries.
-- `pp rm obsolete` deletes a stored entry when it is no longer useful.
-- Save with a colliding name? you'll be prompted to rename, cancel, or auto-append `_2`.
+## **Installation (Because You Can’t Wait)** 🚀
+### **Option 1: Install via `pip` or `uv`**
+```bash
+pip install git+https://github.com/<org>/PromptPaste.git
+# or
+uv tool install git+https://github.com/<org>/PromptPaste.git
+```
 
-You can also copy `~/.prompt_paste/<name>` anywhere you need it, or configure the storage path with `PROMPT_PASTE_STORAGE=/tmp/stash pp ...` for short-lived clips.
+### **Option 2: Manual Install (For the Rebels)**
+```bash
+# Linux/macOS
+chmod +x scripts/install_pp.sh
+./scripts/install_pp.sh          # Installs to `~/.local/bin/pp` (customize with dir prefix)
 
-## Testing
-Run the bundled tests via the standard library:
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File scripts/install_pp.ps1
+# Installs to `%USERPROFILE%\.local\bin`
+```
 
+✅ **Update later**: Just rerun the install command—it overwrites safely!
+
+---
+
+## **Usage Examples** 🎯
+```bash
+# Save a file
+pp save reminders/do_tests.md
+
+# Recall and pipe into an agent
+pp do_tests | claude -p
+
+# List everything you’ve saved
+pp list
+
+# Open storage dir for bulk editing
+pp store
+
+# Delete unused entries
+pp rm obsolete_prompt
+```
+
+### **Pro Tips**
+- Save with a colliding name? The CLI **asks you what to do** next. 🤔
+- Configure storage path for **testing or short-lived clips** without touching your main `~/.prompt_paste`. 🔄
+
+---
+
+## **Testing** 🧪
+Run the bundled tests to ensure everything works:
 ```bash
 python3 -m unittest tests.test_pp
 ```
 
-The tests exercise saving, collision handling, listing, reading, and deleting entries without touching your real `~/.prompt_paste`.
+✅ **Tests cover**: Saving, collision handling, listing, reading, and deleting—**all without touching your real storage**. 🎉
 
-## Notes
-- The tool avoids dependencies; it only requires Python 3.8+.
-- Saving or adding a nonexistent file prints an error (`Error: ...`) and exits with code 1, so you know the snippet was not recorded.
-- Use `pp` as a quick clipboard replacement whenever you want to reuse policies, checklists, or commands without retyping them.
+---
+
+## **Notes** 📝
+- **Zero dependencies**: Just Python 3.8+ (because we keep it simple). 🐍
+- **Error handling**: If you try to save a nonexistent file, it **yells at you** (so you know it failed). 🚨
+- **Use it as a clipboard**: Reuse policies, checklists, or commands **without retyping them**. ✂️
+
+---
+**Want more power features?** Check out [qmd](https://github.com/tobi/qmd) (but then you’ll have to read their docs, and we both know you’ll forget). 📚
