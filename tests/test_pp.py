@@ -35,7 +35,7 @@ class PromptPasteTests(unittest.TestCase):
         source = self._source("snippet.txt", "echo 'hello'")
         saved = save_entry(source, storage=self.storage)
         self.assertIsNotNone(saved)
-        self.assertTrue((self.storage / "snippet").exists())
+        self.assertTrue((self.storage / "snippet.txt").exists())
         self.assertEqual("echo 'hello'", read_entry("snippet", storage=self.storage))
 
     def test_save_entry_auto_rename(self):
@@ -45,8 +45,8 @@ class PromptPasteTests(unittest.TestCase):
         prompt = self._prompt(["y"])
         saved = save_entry(second, storage=self.storage, prompt_fn=prompt)
         self.assertIsNotNone(saved)
-        self.assertTrue(saved.name.endswith("_2"))
-        self.assertEqual("two", read_entry(saved.name, storage=self.storage))
+        self.assertTrue(saved.name.endswith("_2.md"))
+        self.assertEqual("two", read_entry("snippet_2", storage=self.storage))
 
     def test_save_entry_cancelled(self):
         source = self._source("snippet.txt", "one")
@@ -57,16 +57,16 @@ class PromptPasteTests(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_list_and_read(self):
-        (self.storage / "one").write_text("1")
-        (self.storage / "two").write_text("2")
+        (self.storage / "one.md").write_text("1")
+        (self.storage / "two.txt").write_text("2")
         entries = list_entries(storage=self.storage)
-        self.assertEqual(["one", "two"], [entry.name for entry in entries])
+        self.assertEqual(["one.md", "two.txt"], [entry.name for entry in entries])
         self.assertEqual("2", read_entry("two", storage=self.storage))
 
     def test_remove_entry(self):
-        (self.storage / "bye").write_text("bye")
+        (self.storage / "bye.md").write_text("bye")
         remove_entry("bye", storage=self.storage)
-        self.assertFalse((self.storage / "bye").exists())
+        self.assertFalse((self.storage / "bye.md").exists())
         with self.assertRaises(FileNotFoundError):
             remove_entry("bye", storage=self.storage)
 

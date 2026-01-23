@@ -10,12 +10,12 @@ PromptPaste keeps the prompts, checklists, and shell snippets you keep pasting a
 
 ## Features
 - `pp add path/to/file` is an alias for `save` that keeps the same behavior
-- `pp save path/to/file` copies a file into the storage dir (`~/.prompt_paste` by default)
+- `pp save path/to/file` copies a file (the full filename and extension stay intact) into the storage dir (`~/.prompt_paste` by default)
 - `pp <name>` prints the stored snippet so you can pipe it into another agent (missing entries exit quietly)
-- `pp list` lists every stored entry
+- `pp list` lists every stored entry (names include the original extension)
 - `pp rm <name>` deletes a snippet (you can still keep copies in your project)
 - `pp store` opens the storage directory in your file manager/editor
-- entry IDs use the filename without its extension, so `pp add 123.md` saves to `123` and you retrieve via `pp 123`
+- entry IDs use the filename without its extension, so `pp add 123.md` saves to `123.md` and you retrieve via `pp 123`
 - collision guard: if you save a name that already exists the CLI prompts you to rename, auto‑suffix, or cancel
 - storage path is overrideable with `PROMPT_PASTE_STORAGE` for portability or testing
 

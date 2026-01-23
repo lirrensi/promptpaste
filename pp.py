@@ -79,8 +79,7 @@ def save_entry(
         raise IsADirectoryError(str(source))
 
     dest_dir = storage or ensure_storage_dir()
-    target_name = source.stem or source.name
-    target = dest_dir / target_name
+    target = dest_dir / source.name
     final = resolve_destination(target, prompt_fn)
     if final is None:
         return None
@@ -94,21 +93,25 @@ def list_entries(storage: Optional[Path] = None) -> Iterable[Path]:
     return sorted(directory.iterdir())
 
 
-def read_entry(name: str, storage: Optional[Path] = None) -> str:
-    """Return the contents of a stored entry name."""
-    directory = storage or ensure_storage_dir()
-    entry = directory / name
-    if not entry.exists():
+def find_entry_by_id(name: str, directory: Path) -> Path:
+    """Return the stored file whose stem matches the requested id."""
+    matches = [entry for entry in directory.iterdir() if entry.stem == name]
+    if not matches:
         raise FileNotFoundError(name)
+    return sorted(matches)[0]
+
+
+def read_entry(name: str, storage: Optional[Path] = None) -> str:
+    """Return the contents of a stored entry id."""
+    directory = storage or ensure_storage_dir()
+    entry = find_entry_by_id(name, directory)
     return entry.read_text(encoding="utf-8", errors="ignore")
 
 
 def remove_entry(name: str, storage: Optional[Path] = None) -> None:
-    """Delete an entry by name."""
+    """Delete an entry by id."""
     directory = storage or ensure_storage_dir()
-    entry = directory / name
-    if not entry.exists():
-        raise FileNotFoundError(name)
+    entry = find_entry_by_id(name, directory)
     entry.unlink()
 
 
