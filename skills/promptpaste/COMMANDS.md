@@ -3,7 +3,7 @@
 ## Storage location
 - Default path: `~/.prompt_paste/`.
 - Override for the current shell or CI by setting `PROMPT_PASTE_STORAGE` (exported as `STORAGE_ENV` inside `pp.py`).
-- Tests rely on supplying their own temporary storage directory and a short-lived ENV override before each run.
+- The bundled tests create temporary storage directories and rely on an ENV override so they never touch your real library.
 
 ## Covered commands
 | Command | Description |
@@ -24,9 +24,9 @@
 - Filenames that begin with `list`, `rm`, `add`, `store`, or `save` are rejected to prevent conflicts with built-in commands.
 
 ## Meta usage notes
-- Keep AGENTS.md snippets, SKILL templates, or testing checklists in PromptPaste so you can paste them into any agent or new skill without hunting across repos.
-- The CLI is intentionally minimal—everything stays local, filenames are identities, and retrieving a missing ID simply prints nothing so you can re-run the command without noise.
-- Combine this tool with new skills by saving reusable answers once (`pp save skills/???/SKILL.md`) and pasting them into whichever project needs them.
+- PromptPaste is a standalone helper—entries live in your home directory so you can reuse the same snippets across every agent session, repo, or skill you work on.
+- The CLI is intentionally minimal: filenames act as IDs, and requesting a missing entry just prints nothing so you can rerun the command without extra output.
+- Save drafts of AGENTS.md fragments, test checklists, or skill templates once (`pp save path/to/SKILL.md`) and paste them wherever you need them next.
 
 ## Testing this project
 - Run `python -m unittest tests.test_pp` to exercise saving, listing, reading, and deletion logic against a temporary storage directory.
