@@ -39,7 +39,7 @@ pp store                       # Open your prompt library in an editor (because 
 | `pp save <path>`      | Copies a file to `~/.prompt_paste/` (keeps original filename/extension). 📝 |
 | `pp add <path>`       | Alias for `save` (same behavior, different name). 🔄                     |
 | `pp <name>`           | Prints the stored snippet (so you can paste it into your agent). 🤖          |
-| `pp list`             | Lists **all** stored entries (with extensions). 📋                     |
+| `pp list`             | Lists **all** stored entries with filename and first line preview. 📋     |
 | `pp rm <name>`        | Deletes a snippet (but you can keep copies elsewhere). 🗑️                |
 | `pp store`            | Opens the storage directory in your editor/file manager. ✏️             |
 

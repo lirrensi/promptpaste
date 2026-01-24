@@ -20,6 +20,10 @@ import sys
 from pathlib import Path
 from typing import Callable, Iterable, Optional
 
+# Prohibited filenames that should not be saved (e.g., hard‑coded command files)
+# Check by filename prefix, not extension
+PROHIBITED_PREFIXES = {"list", "rm", "add", "store", "save"}
+
 STORAGE_ENV = "PROMPT_PASTE_STORAGE"
 
 
@@ -77,6 +81,10 @@ def save_entry(
         raise FileNotFoundError(str(source))
     if source.is_dir():
         raise IsADirectoryError(str(source))
+    # Check if filename starts with any prohibited prefix
+    if source.stem in PROHIBITED_PREFIXES:
+        print(f"Error: '{source.name}' is a prohibited filename and cannot be saved.", file=sys.stderr)
+        return None
 
     dest_dir = storage or ensure_storage_dir()
     target = dest_dir / source.name
@@ -91,6 +99,34 @@ def list_entries(storage: Optional[Path] = None) -> Iterable[Path]:
     """Return sorted stored entry names."""
     directory = storage or ensure_storage_dir()
     return sorted(directory.iterdir())
+
+# ANSI color codes for terminal output
+COLOR_RESET = "\033[0m"
+COLOR_CYAN = "\033[96m"
+COLOR_GREEN = "\033[92m"
+COLOR_YELLOW = "\033[93m"
+
+
+def list_entries_with_preview(storage: Optional[Path] = None) -> None:
+    """Print stored entries with filename, lines + chars, and first line preview."""
+    for entry in list_entries(storage):
+        try:
+            content = entry.read_text(encoding="utf-8", errors="ignore")
+            lines = content.count('\n') + 1
+            chars = len(content)
+            # Format filename with color
+            print(f"{COLOR_CYAN}> {entry.name}{COLOR_RESET}")
+            print(f"{COLOR_GREEN}  (lines: {lines}, chars: {chars}){COLOR_RESET}")
+            # Get first line and limit to 64 characters
+            first_line = content.split('\n')[0].strip()
+            if first_line:
+                if len(first_line) > 64:
+                    first_line = first_line[:64] + "..."
+                print(f"{COLOR_YELLOW}  {first_line}{COLOR_RESET}\n")
+            else:
+                print()
+        except Exception:
+            print(f"{COLOR_CYAN}> {entry.name}{COLOR_RESET}\n")
 
 
 def find_entry_by_id(name: str, directory: Path) -> Path:
@@ -154,9 +190,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             return 0
 
         if head == "list":
-            entries = list_entries(storage)
-            for entry in entries:
-                print(entry.name)
+            list_entries_with_preview(storage)
             return 0
 
         if head == "rm":
