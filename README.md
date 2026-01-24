@@ -33,6 +33,22 @@ pp store                       # Open your prompt library in an editor (because 
 
 ---
 
+## How is that different from SKILL.md format?
+
+They are similar but skills were intended as a procedural knowledge first, this format is intent-agnostic:
+- you can store long manuals of how-to (exactly that skill does)
+- instructions
+- just reminders to do things `this way only pls`
+
+This solves problem of having to copy skills to all projects/coding agents, its easy if you use single CC/codex but if you experiment with many of them? And having to remember which skill loaded where?
+Also skill selection if not always a transparent process - here you have direct control over what pasted in!
+
+And you can combine with skills too! Just reference like "use `pp ssh_manual` to know how to connect to xyz"
+
+Or save multiple building blocks for a skill to create them faster! Just pipe many `pp <file>` commands to together and save to skills/xyz/SKILL.md
+
+---
+
 ## **Features** 🌟
 | Command               | What It Does                                                                 |
 |-----------------------|-----------------------------------------------------------------------------|
@@ -43,8 +59,29 @@ pp store                       # Open your prompt library in an editor (because 
 | `pp rm <name>`        | Deletes a snippet (but you can keep copies elsewhere). 🗑️                |
 | `pp store`            | Opens the storage directory in your editor/file manager. ✏️             |
 
+### **Collision Handling** 🎯
+When saving a file that already exists, you have several options:
+
+**Interactive mode (default):**
+```
+Entry 'test.md' already exists.
+
+Options:
+  n/N - Cancel and exit
+  r/R - Rename to suggested name: 'test_2.md'
+  o/O - Overwrite existing file
+  <type> - Enter your own name
+
+Your choice:
+```
+
+**Command-line helpers:**
+- `pp add <file> -r` - Auto-rename with `_2` suffix if collision
+- `pp add <file> -o` - Overwrite existing file without prompting
+- `pp add <file> -n "name"` - Use specific name for the entry
+
 ### **Bonus Features**
-- **Collision guard**: If a name already exists, it prompts you to rename, auto-append `_2`, or cancel. 🤔
+- **Collision guard**: Smart collision handling with multiple options. 🤔
 - **Custom storage path**: Override with `PROMPT_PASTE_STORAGE=/path/to/dir pp ...` for testing or portability. 🔄
 - **Silent failures**: Missing entries? **No errors**—just nothing happens. (Because you already have enough noise.) 🤫
 
@@ -92,8 +129,10 @@ pp rm obsolete_prompt
 ```
 
 ### **Pro Tips**
-- Save with a colliding name? The CLI **asks you what to do** next. 🤔
-- Configure storage path for **testing or short-lived clips** without touching your main `~/.prompt_paste`. 🔄
+- **Auto-rename**: Use `pp add file.md -r` to automatically append `_2` to avoid collisions. 🔄
+- **Force overwrite**: Use `pp add file.md -o` to silently overwrite existing files. ⚡
+- **Custom names**: Use `pp add file.md -n "custom_name"` to save with a specific name. 📝
+- **Configure storage path** for **testing or short-lived clips** without touching your main `~/.prompt_paste`. 🔄
 
 ---
 
@@ -113,4 +152,4 @@ python3 -m unittest tests.test_pp
 - **Use it as a clipboard**: Reuse policies, checklists, or commands **without retyping them**. ✂️
 
 ---
-**Want more power features?** Check out [qmd](https://github.com/tobi/qmd) (but then you’ll have to read their docs, and we both know you’ll forget). 📚
+**Want more power features?** Check out [qmd](https://github.com/tobi/qmd) (this was an inspiration for this project). 📚

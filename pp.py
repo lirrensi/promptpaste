@@ -41,28 +41,76 @@ def ensure_storage_dir() -> Path:
 
 
 def resolve_destination(
-    target: Path, prompt_fn: Callable[[str], str]
+    target: Path,
+    prompt_fn: Callable[[str], str],
+    *,
+    auto_rename: bool = False,
+    overwrite: bool = False,
+    new_name: Optional[str] = None,
 ) -> Optional[Path]:
-    """Handle name collisions by prompting the user for a different name."""
+    """Handle name collisions by prompting the user for a different name.
+    
+    Args:
+        target: The target path to check for collisions
+        prompt_fn: Function to prompt the user (default: input)
+        auto_rename: Automatically rename with _2 suffix if collision
+        overwrite: Overwrite existing file without prompting
+        new_name: Use this specific name instead of prompting
+    
+    Returns:
+        The final destination path, or None if user cancelled
+    """
     candidate = target
+    
+    # Handle auto-rename option
+    if auto_rename and candidate.exists():
+        suggested = candidate.parent / f"{candidate.stem}_2{candidate.suffix}"
+        return suggested
+    
+    # Handle overwrite option
+    if overwrite and candidate.exists():
+        return candidate
+    
+    # Handle explicit new name option
+    if new_name:
+        candidate = candidate.parent / new_name
+        if candidate.exists():
+            print(f"Error: Name '{new_name}' already exists in storage.", file=sys.stderr)
+            return None
+        return candidate
+    
+    # Handle user prompting
     while candidate.exists():
         suggested = candidate.parent / f"{candidate.stem}_2{candidate.suffix}"
         message = (
-            f"Entry {candidate.name} exists. "
-            f"Type 'y' to rename to {suggested.name}, 'n' to cancel, or a new name: "
+            f"Entry '{candidate.name}' already exists.\n"
+            f"\n"
+            f"Options:\n"
+            f"  n/N - Cancel and exit\n"
+            f"  r/R - Rename to suggested name: '{suggested.name}'\n"
+            f"  o/O - Overwrite existing file\n"
+            f"  <type> - Enter your own name\n"
+            f"\n"
+            f"Your choice: "
         )
         response = prompt_fn(message).strip()
         if not response:
             print("Cancelled.")
             return None
         normalized = response.lower()
-        if normalized == "y":
-            candidate = suggested
-            continue
         if normalized == "n":
             print("Cancelled.")
             return None
+        if normalized == "r":
+            candidate = suggested
+            continue
+        if normalized == "o":
+            return candidate
+        # User entered their own name
         candidate = candidate.parent / Path(response).name
+        if candidate.exists():
+            print(f"Error: Name '{response}' already exists in storage.", file=sys.stderr)
+            continue
     return candidate
 
 
@@ -71,11 +119,22 @@ def save_entry(
     *,
     storage: Optional[Path] = None,
     prompt_fn: Callable[[str], str] = input,
+    auto_rename: bool = False,
+    overwrite: bool = False,
+    new_name: Optional[str] = None,
 ) -> Optional[Path]:
     """
     Copy a file into storage. Returns the saved path, or None if user cancelled.
 
     Raises FileNotFoundError when the source path is missing.
+    
+    Args:
+        source: Path to the source file
+        storage: Optional custom storage directory
+        prompt_fn: Function to prompt the user (default: input)
+        auto_rename: Automatically rename with _2 suffix if collision
+        overwrite: Overwrite existing file without prompting
+        new_name: Use this specific name instead of prompting
     """
     if not source.exists():
         raise FileNotFoundError(str(source))
@@ -88,7 +147,13 @@ def save_entry(
 
     dest_dir = storage or ensure_storage_dir()
     target = dest_dir / source.name
-    final = resolve_destination(target, prompt_fn)
+    final = resolve_destination(
+        target,
+        prompt_fn,
+        auto_rename=auto_rename,
+        overwrite=overwrite,
+        new_name=new_name,
+    )
     if final is None:
         return None
     shutil.copy2(source, final)
@@ -170,6 +235,14 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="pp", add_help=False)
     parser.add_argument("command", nargs="*", help="Command or entry name")
     parser.add_argument("--help", action="help", help="Show this message and exit")
+    
+    # Add new options for save/add command
+    parser.add_argument("-r", "--rename", action="store_true",
+                        help="Auto-rename with _2 suffix if collision")
+    parser.add_argument("-o", "--overwrite", action="store_true",
+                        help="Overwrite existing file without prompting")
+    parser.add_argument("-n", "--new-name", type=str,
+                        help="Use this specific name for the entry")
 
     args = parser.parse_args(argv)
     if not args.command:
@@ -184,7 +257,13 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             if not rest:
                 parser.error(f"{head} requires a filepath argument")
             source = Path(rest[0]).expanduser()
-            final = save_entry(source, storage=storage)
+            final = save_entry(
+                source,
+                storage=storage,
+                auto_rename=args.rename,
+                overwrite=args.overwrite,
+                new_name=args.new_name,
+            )
             if final:
                 print(f"Saved entry as {final.name}")
             return 0
