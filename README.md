@@ -90,9 +90,9 @@ Your choice:
 ## **Installation (Because You Can’t Wait)** 🚀
 ### **Option 1: Install via `pip` or `uv`**
 ```bash
-pip install git+https://github.com/<org>/PromptPaste.git
+pip install git+https://github.com/lirrensi/promptpaste.git
 # or
-uv tool install git+https://github.com/<org>/PromptPaste.git
+uv tool install git+https://github.com/lirrensi/promptpaste.git
 ```
 
 ### **Option 2: Manual Install (For the Rebels)**
