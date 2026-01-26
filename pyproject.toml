@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "promptpaste"
-version = "0.1.0"
+version = "0.2.0"
 description = "Store and reuse prompts and instructions via a tiny CLI."
 readme = "README.md"
 requires-python = ">=3.8"

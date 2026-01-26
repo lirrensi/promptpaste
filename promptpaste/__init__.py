@@ -13,12 +13,31 @@ Commands:
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 from typing import Callable, Iterable, Optional
+
+# Reconfigure stdout to handle Unicode on Windows
+if sys.platform == "win32":
+    # Try to set UTF-8 encoding for stdout
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, LookupError):
+            pass
+    # Fallback: wrap stdout with a UTF-8 encoder
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(
+            sys.stdout.buffer,
+            encoding="utf-8",
+            errors="replace",
+            newline=None,
+            write_through=True,
+        )
 
 # Prohibited filenames that should not be saved (e.g., hard‑coded command files)
 # Check by filename prefix, not extension
@@ -677,7 +696,7 @@ def list_entries_with_preview(storage: Optional[Path] = None) -> None:
             if item.is_dir():
                 # Print folder name
                 prefix = "  " * indent
-                print(f"{prefix}{COLOR_CYAN}📁 {item.name}/{COLOR_RESET}\n")
+                print(f"{prefix}{COLOR_CYAN}[DIR] {item.name}/{COLOR_RESET}\n")
                 # Recursively walk subdirectory
                 walk_directory(item, indent + 1)
             else:
