@@ -560,6 +560,70 @@ class PromptPasteTests(unittest.TestCase):
         self.assertIsNone(result)
         self.assertFalse((self.storage / "test_folder").exists())
 
+    # skill.md compatibility tests
+    def test_is_single_skill_folder_true(self):
+        skill_folder = self.workspace / "my-skill"
+        skill_folder.mkdir()
+        (skill_folder / "SKILL.md").write_text("# My Skill")
+
+        self.assertTrue(is_single_skill_folder(skill_folder))
+
+    def test_is_single_skill_folder_false_multiple_files(self):
+        skill_folder = self.workspace / "my-skill"
+        skill_folder.mkdir()
+        (skill_folder / "SKILL.md").write_text("# My Skill")
+        (skill_folder / "COMMANDS.md").write_text("# Commands")
+
+        self.assertFalse(is_single_skill_folder(skill_folder))
+
+    def test_is_single_skill_folder_false_wrong_name(self):
+        skill_folder = self.workspace / "my-skill"
+        skill_folder.mkdir()
+        (skill_folder / "skill.md").write_text("# My Skill")  # lowercase
+
+        self.assertFalse(is_single_skill_folder(skill_folder))
+
+    def test_is_single_skill_folder_false_not_directory(self):
+        skill_file = self.workspace / "my-skill.md"
+        skill_file.write_text("# My Skill")
+
+        self.assertFalse(is_single_skill_folder(skill_file))
+
+    def test_save_single_skill_folder_imports_as_file(self):
+        skill_folder = self.workspace / "my-awesome-skill"
+        skill_folder.mkdir()
+        (skill_folder / "SKILL.md").write_text(
+            "# My Awesome Skill\n\nThis is the content."
+        )
+
+        result = save_entry(
+            skill_folder, storage=self.storage, prompt_fn=self._prompt([])
+        )
+
+        self.assertIsNotNone(result)
+        # Should be saved as my-awesome-skill.md, not as a folder
+        saved_file = self.storage / "my-awesome-skill.md"
+        self.assertTrue(saved_file.exists())
+        self.assertTrue(saved_file.is_file())
+        content = saved_file.read_text()
+        self.assertIn("My Awesome Skill", content)
+
+    def test_save_skill_folder_with_extra_files_imports_as_folder(self):
+        skill_folder = self.workspace / "multi-file-skill"
+        skill_folder.mkdir()
+        (skill_folder / "SKILL.md").write_text("# Multi File Skill")
+        (skill_folder / "COMMANDS.md").write_text("# Commands")
+
+        result = save_entry(
+            skill_folder, storage=self.storage, prompt_fn=self._prompt(["y"])
+        )
+
+        self.assertIsNotNone(result)
+        # Should be saved as a folder
+        self.assertTrue((self.storage / "multi-file-skill").is_dir())
+        self.assertTrue((self.storage / "multi-file-skill" / "SKILL.md").exists())
+        self.assertTrue((self.storage / "multi-file-skill" / "COMMANDS.md").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

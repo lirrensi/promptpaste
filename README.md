@@ -84,6 +84,7 @@ Your choice:
 - **Collision guard**: Smart collision handling with multiple options. 🤔
 - **Custom storage path**: Override with `PROMPT_PASTE_STORAGE=/path/to/dir pp ...` for testing or portability. 🔄
 - **Silent failures**: Missing entries? **No errors**—just nothing happens. (Because you already have enough noise.) 🤫
+- **skill.md compatibility**: Folders with a single `SKILL.md` file are imported as `{folder_name}.md` — compatible with the [skill.md standard](https://agentskills.io/). 🎯
 
 ---
 

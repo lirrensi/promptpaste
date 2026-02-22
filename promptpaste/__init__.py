@@ -162,6 +162,28 @@ def is_eligible_file(file_path: Path) -> bool:
     return file_path.suffix.lower() in {".md", ".txt"}
 
 
+def is_single_skill_folder(folder: Path) -> bool:
+    """Check if folder contains exactly one file: SKILL.md (skill.md standard).
+
+    Args:
+        folder: Path to the folder to check
+
+    Returns:
+        True if folder has exactly one file named "SKILL.md", False otherwise
+
+    Examples:
+        >>> is_single_skill_folder(Path('/my-skill'))  # with only SKILL.md inside
+        True
+        >>> is_single_skill_folder(Path('/my-skill'))  # with SKILL.md + other files
+        False
+    """
+    if not folder.is_dir():
+        return False
+
+    files = [f for f in folder.iterdir() if f.is_file()]
+    return len(files) == 1 and files[0].name == "SKILL.md"
+
+
 def discover_folder_files(folder: Path) -> list[Path]:
     """Find all .md and .txt files in a folder (recursive).
 
@@ -596,6 +618,23 @@ def save_entry(
 
     # Handle folder import
     if source.is_dir():
+        # Check for skill.md standard: single SKILL.md file → import as named file
+        if is_single_skill_folder(source):
+            skill_file = list(source.iterdir())[0]  # The SKILL.md file
+            target = dest_dir / f"{source.name}.md"
+            final = resolve_destination(
+                target,
+                prompt_fn,
+                auto_rename=auto_rename,
+                overwrite=overwrite,
+                new_name=new_name,
+            )
+            if final is None:
+                return None
+            shutil.copy2(skill_file, final)
+            print(f"Imported skill '{source.name}' as {final.name}")
+            return final
+
         target_folder = dest_dir / source.name
 
         # Check if folder already exists
